@@ -1,52 +1,39 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const Login = ({ setToken }) => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Implement login logic here
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('/api/auth/login', { username, password });
+            setToken(response.data.token);
+        } catch (error) {
+            setError('Login failed. Please check your username and password.');
+        }
+    };
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      // Redirect to the menu page
-      window.location.href = '/menu';
-    } else {
-      alert('Login failed');
-    }
-  };
-
-  return (
-    <div>
-      <h1 style={{ textAlign: 'center' }}>Raga Library</h1>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="text" 
-          value={username} 
-          onChange={(e) => setUsername(e.target.value)} 
-          placeholder="Username" 
-          required 
-        />
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          placeholder="Password" 
-          required 
-        />
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
+    return (
+        <div className="auth-container">
+            <h1>Raga Liabraray</h1>
+            <input 
+                type="text" 
+                placeholder="Username" 
+                value={username} 
+                onChange={e => setUsername(e.target.value)} 
+            />
+            <input 
+                type="password" 
+                placeholder="Password" 
+                value={password} 
+                onChange={e => setPassword(e.target.value)} 
+            />
+            <button onClick={handleLogin}>Login</button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+        </div>
+    );
 };
 
 export default Login;
